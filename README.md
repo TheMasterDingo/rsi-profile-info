@@ -8,5 +8,4 @@ This is a simple script that queries the RSI website and shows formatted informa
 
 **Run**  
 -You can either type the username right after the script like ./rsi-profile.ps1 MasterDingo or just run the script and it will ask you for a username  
--Give it a Username  
 **PROFIT**  
