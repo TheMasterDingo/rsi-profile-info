@@ -7,5 +7,5 @@ This is a simple script that queries the RSI website and shows formatted informa
 -Open the script with Notepad and paste the path of the .dll into the first line $htmlAgilityPackPath = "PATH TO YOUR DLL"  
 
 **Run**  
--You can either type the username right after the script like ./rsi-profile.ps1 MasterDingo or just run the script and it will ask you for a username  
+-You can either type the username right after the script like ./rsi-profile.ps1 UserName or just run the script and it will ask you for a username  
 **PROFIT**  
