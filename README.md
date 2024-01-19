@@ -1,6 +1,5 @@
 This is a simple script that queries the RSI website and shows formatted information regarding searched player.  
-![](https://i.imgur.com/jCQvkBT.png)
-
+![](https://i.imgur.com/aqtCz5W.png)
 **Install**  
 -You will need the HTMLAgilityPack to run it.  
 -Easiest way is to download it here https://html-agility-pack.net/download  
