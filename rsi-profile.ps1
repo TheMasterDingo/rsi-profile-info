@@ -112,7 +112,7 @@ function Get-OrganizationDetails {
         $isRedacted = $visibilityClass -like "*visibility-R*"
 
         if ($isRedacted) {
-            Write-Host -NoNewline "Main Organization: "; Write-Host -ForegroundColor DarkRed "REDACTED"
+            Write-Host -NoNewline -ForegroundColor DarkYellow "Main Organization: "; Write-Host -ForegroundColor DarkRed "REDACTED"
         } else {
             $mainOrgNameNode = $mainOrg.SelectSingleNode(".//a[@class='value']")
             $mainOrgName = if ($mainOrgNameNode) { $mainOrgNameNode.InnerText.Trim() } else { "" }
@@ -120,10 +120,10 @@ function Get-OrganizationDetails {
             $mainOrgSIDNode = $mainOrg.SelectSingleNode(".//strong[@class='value']")
             $mainOrgSID = if ($mainOrgSIDNode) { $mainOrgSIDNode.InnerText.Trim() } else { "" }
 
-            Write-Host -NoNewline "Main Organization: "; Write-Host -ForegroundColor DarkCyan "$mainOrgName($mainOrgSID)"
+            Write-Host -NoNewline -ForegroundColor DarkYellow "Main Organization: "; Write-Host -ForegroundColor DarkCyan "$mainOrgName($mainOrgSID)"
         }
     } else {
-        Write-Host -NoNewline "Main Organization: "; Write-Host -ForegroundColor DarkCyan "None"
+        Write-Host -NoNewline -ForegroundColor DarkYellow "Main Organization: "; Write-Host -ForegroundColor DarkCyan "None"
     }
 
     # Extract affiliated organization details
@@ -152,7 +152,7 @@ function Get-OrganizationDetails {
     }
 
     # Output the affiliated organizations in one line with special handling for "REDACTED"
-    Write-Host -NoNewline "Affiliated Organizations: "
+    Write-Host -NoNewline -ForegroundColor DarkYellow "Affiliated Organizations: "
 
     foreach ($item in $affiliatedOrgDetails) {
         if ($item -eq "REDACTED") {
@@ -193,12 +193,12 @@ $enlistedDate = Extract-EnlistedDateWithHtmlAgilityPack -htmlContent $htmlConten
 $fluency = Extract-FluencyWithHtmlAgilityPack -htmlContent $htmlContentCitizen
 
 # Output the extracted information from the citizen page
-Write-Host -NoNewline ("Information extracted from: "); Write-Host -ForegroundColor DarkCyan $urlCitizen
-Write-Host -NoNewline "Handle Name: "; Write-Host -ForegroundColor DarkCyan $handleName
-Write-Host -NoNewline "UEE Citizen Record: "; Write-Host -ForegroundColor DarkCyan $ueeCitizenRecord
-Write-Host -NoNewline "Badge: "; Write-Host -ForegroundColor DarkCyan $badge
-Write-Host -NoNewline "Enlisted Date: "; Write-Host -ForegroundColor DarkCyan $enlistedDate
-Write-Host -NoNewline "Fluency: "; Write-Host -ForegroundColor DarkCyan $fluency
+Write-Host -NoNewline -ForegroundColor DarkGray ("Information extracted from: "); Write-Host -ForegroundColor White $urlCitizen
+Write-Host -NoNewline -ForegroundColor DarkYellow "Handle Name: "; Write-Host -ForegroundColor DarkCyan $handleName
+Write-Host -NoNewline -ForegroundColor DarkYellow "UEE Citizen Record: "; Write-Host -ForegroundColor DarkCyan $ueeCitizenRecord
+Write-Host -NoNewline -ForegroundColor DarkYellow "Badge: "; Write-Host -ForegroundColor DarkCyan $badge
+Write-Host -NoNewline -ForegroundColor DarkYellow "Enlisted Date: "; Write-Host -ForegroundColor DarkCyan $enlistedDate
+Write-Host -NoNewline -ForegroundColor DarkYellow "Fluency: "; Write-Host -ForegroundColor DarkCyan $fluency
 
 # Call the function to get organization details
 $orgDetails = Get-OrganizationDetails -htmlContent $htmlContentOrg
