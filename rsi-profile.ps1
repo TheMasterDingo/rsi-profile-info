@@ -4,6 +4,18 @@ $htmlAgilityPackPath = "PATH TO YOUR DLL"
 # Load the HTML Agility Pack assembly
 Add-Type -Path $htmlAgilityPackPath
 
+# Function to create an HTML Agility Pack document
+function New-HtmlDocument {
+    param (
+        [string]$htmlContent
+    )
+
+    $doc = New-Object HtmlAgilityPack.HtmlDocument
+    $doc.LoadHtml($htmlContent)
+
+    return $doc
+}
+
 # Function to extract information from HTML using HTML Agility Pack
 function Extract-InfoWithHtmlAgilityPack {
     param (
@@ -11,11 +23,9 @@ function Extract-InfoWithHtmlAgilityPack {
         [string]$label
     )
 
-    # Create an HTML Agility Pack document
-    $doc = New-Object HtmlAgilityPack.HtmlDocument
-    $doc.LoadHtml($htmlContent)
+    $doc = New-HtmlDocument -htmlContent $htmlContent
 
-    # Select the element with the specified label
+    # Create an HTML Agility Pack document
     $element = $doc.DocumentNode.SelectSingleNode("//span[@class='label' and contains(text(), '$label')]/following-sibling::strong[@class='value']")
 
     # If the element is not found, try to find the span with the specified label
@@ -37,11 +47,9 @@ function Extract-BadgeInfoWithHtmlAgilityPack {
         [string]$htmlContent
     )
 
-    # Create an HTML Agility Pack document
-    $doc = New-Object HtmlAgilityPack.HtmlDocument
-    $doc.LoadHtml($htmlContent)
+    $doc = New-HtmlDocument -htmlContent $htmlContent
 
-    # Select the badge information within the specified structure
+    # Create an HTML Agility Pack document
     $badgeElement = $doc.DocumentNode.SelectSingleNode("//p[@class='entry' and .//span[@class='icon']]//span[@class='value']")
 
     # Output the inner text of the selected badge element
@@ -58,11 +66,9 @@ function Extract-EnlistedDateWithHtmlAgilityPack {
         [string]$htmlContent
     )
 
-    # Create an HTML Agility Pack document
-    $doc = New-Object HtmlAgilityPack.HtmlDocument
-    $doc.LoadHtml($htmlContent)
+    $doc = New-HtmlDocument -htmlContent $htmlContent
 
-    # Select the Enlisted date information within the specified structure
+    # Create an HTML Agility Pack document
     $enlistedDateElement = $doc.DocumentNode.SelectSingleNode("//p[@class='entry' and .//span[@class='label' and contains(text(), 'Enlisted')]]/strong[@class='value']")
 
     # Output the inner text of the selected Enlisted date element
@@ -79,11 +85,9 @@ function Extract-FluencyWithHtmlAgilityPack {
         [string]$htmlContent
     )
 
-    # Create an HTML Agility Pack document
-    $doc = New-Object HtmlAgilityPack.HtmlDocument
-    $doc.LoadHtml($htmlContent)
+    $doc = New-HtmlDocument -htmlContent $htmlContent
 
-    # Select the Fluency information within the specified structure
+    # Create an HTML Agility Pack document
     $fluencyElement = $doc.DocumentNode.SelectSingleNode("//p[@class='entry' and .//span[@class='label' and contains(text(), 'Fluency')]]/strong[@class='value']")
 
     # Output the inner text of the selected Fluency element after replacing multiple spaces with a single space
@@ -101,11 +105,9 @@ function Get-OrganizationDetails {
         [string]$htmlContent
     )
 
-    # Use HTML Agility Pack to load the HTML content
-    $doc = New-Object HtmlAgilityPack.HtmlDocument
-    $doc.LoadHtml($htmlContent)
+    $doc = New-HtmlDocument -htmlContent $htmlContent
 
-    # Extract main organization details
+    # Use HTML Agility Pack to load the HTML content
     $mainOrg = $doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'box-content org main')]")
     if ($mainOrg) {
         $visibilityClass = $mainOrg.GetAttributeValue("class", "")
@@ -154,17 +156,22 @@ function Get-OrganizationDetails {
     # Output the affiliated organizations in one line with special handling for "REDACTED"
     Write-Host -NoNewline -ForegroundColor DarkYellow "Affiliated Organizations: "
 
+    $isFirst = $true
+
     foreach ($item in $affiliatedOrgDetails) {
         if ($item -eq "REDACTED") {
+            if (-not $isFirst) {
+                Write-Host -NoNewline -ForegroundColor DarkYellow " | "
+            }
             Write-Host -NoNewline -ForegroundColor DarkRed $item
         } else {
+            if (-not $isFirst) {
+                Write-Host -NoNewline -ForegroundColor DarkYellow " | "
+            }
             Write-Host -NoNewline -ForegroundColor DarkCyan $item
         }
 
-        # Output a comma (,) after each organization, except for the last one
-        if ($item -ne $affiliatedOrgDetails[-1]) {
-            Write-Host -NoNewline ", "
-        }
+        $isFirst = $false
     }
 }
 
@@ -181,27 +188,49 @@ $urlOrg = "https://robertsspaceindustries.com/citizens/$username/organizations"
 # URL for the RSI citizen page
 $urlCitizen = "https://robertsspaceindustries.com/citizens/$username"
 
-# Use Invoke-WebRequest to get the HTML content of the pages
-$htmlContentOrg = Invoke-WebRequest -Uri $urlOrg -UseBasicParsing | Select-Object -ExpandProperty Content
-$htmlContentCitizen = Invoke-WebRequest -Uri $urlCitizen -UseBasicParsing | Select-Object -ExpandProperty Content
+try {
+    # Use Invoke-WebRequest to get the HTML content of the pages
+    $htmlContentOrg = Invoke-WebRequest -Uri $urlOrg -UseBasicParsing | Select-Object -ExpandProperty Content
+    $htmlContentCitizen = Invoke-WebRequest -Uri $urlCitizen -UseBasicParsing | Select-Object -ExpandProperty Content
+}
+catch [System.Net.WebException] {
+    if ($_.Exception.Response -ne $null -and $_.Exception.Response.StatusCode -eq [System.Net.HttpStatusCode]::NotFound) {
+        Write-Host "Citizen '$username' was not found (404). Try again."
+        exit
+    }
+    else {
+        # Handle other types of WebExceptions or re-throw the error
+        throw
+    }
+}
+catch {
+    # Handle other types of exceptions if needed
+    Write-Host "An unexpected error occurred: $_"
+    exit
+}
 
-# Extract information using the HTML Agility Pack functions
-$handleName = Extract-InfoWithHtmlAgilityPack -htmlContent $htmlContentCitizen -label "Handle name"
-$ueeCitizenRecord = Extract-InfoWithHtmlAgilityPack -htmlContent $htmlContentCitizen -label "UEE Citizen Record"
-$badge = Extract-BadgeInfoWithHtmlAgilityPack -htmlContent $htmlContentCitizen
-$enlistedDate = Extract-EnlistedDateWithHtmlAgilityPack -htmlContent $htmlContentCitizen
-$fluency = Extract-FluencyWithHtmlAgilityPack -htmlContent $htmlContentCitizen
+function Get-UserDetails {
+    param (
+        [string]$htmlContent
+    )
 
-# Output the extracted information from the citizen page
-Write-Host -NoNewline -ForegroundColor DarkGray ("Information extracted from: "); Write-Host -ForegroundColor White $urlCitizen
-Write-Host -NoNewline -ForegroundColor DarkYellow "Handle Name: "; Write-Host -ForegroundColor DarkCyan $handleName
-Write-Host -NoNewline -ForegroundColor DarkYellow "UEE Citizen Record: "; Write-Host -ForegroundColor DarkCyan $ueeCitizenRecord
-Write-Host -NoNewline -ForegroundColor DarkYellow "Badge: "; Write-Host -ForegroundColor DarkCyan $badge
-Write-Host -NoNewline -ForegroundColor DarkYellow "Enlisted Date: "; Write-Host -ForegroundColor DarkCyan $enlistedDate
-Write-Host -NoNewline -ForegroundColor DarkYellow "Fluency: "; Write-Host -ForegroundColor DarkCyan $fluency
+    # Extract information using the HTML Agility Pack functions
+    $handleName = Extract-InfoWithHtmlAgilityPack -htmlContent $htmlContent -label "Handle name"
+    $ueeCitizenRecord = Extract-InfoWithHtmlAgilityPack -htmlContent $htmlContent -label "UEE Citizen Record"
+    $badge = Extract-BadgeInfoWithHtmlAgilityPack -htmlContent $htmlContent
+    $enlistedDate = Extract-EnlistedDateWithHtmlAgilityPack -htmlContent $htmlContent
+    $fluency = Extract-FluencyWithHtmlAgilityPack -htmlContent $htmlContent
 
-# Call the function to get organization details
+    # Output the extracted information from the citizen page
+    Write-Host -NoNewline -ForegroundColor DarkGray ("Information extracted from: "); Write-Host -ForegroundColor White $urlCitizen
+    Write-Host -NoNewline -ForegroundColor DarkYellow "Handle Name: "; Write-Host -ForegroundColor DarkCyan $handleName
+    Write-Host -NoNewline -ForegroundColor DarkYellow "UEE Citizen Record: "; Write-Host -ForegroundColor DarkCyan $ueeCitizenRecord
+    Write-Host -NoNewline -ForegroundColor DarkYellow "Badge: "; Write-Host -ForegroundColor DarkCyan $badge
+    Write-Host -NoNewline -ForegroundColor DarkYellow "Enlisted Date: "; Write-Host -ForegroundColor DarkCyan $enlistedDate
+    Write-Host -NoNewline -ForegroundColor DarkYellow "Fluency: "; Write-Host -ForegroundColor DarkCyan $fluency
+}
+
+# Print user details
+$userDetails = Get-UserDetails -htmlContent $htmlContentCitizen
+# Print organization details
 $orgDetails = Get-OrganizationDetails -htmlContent $htmlContentOrg
-
-# Display the organization details
-$orgDetails
