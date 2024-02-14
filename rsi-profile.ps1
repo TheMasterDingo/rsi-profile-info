@@ -188,24 +188,26 @@ $urlOrg = "https://robertsspaceindustries.com/citizens/$username/organizations"
 # URL for the RSI citizen page
 $urlCitizen = "https://robertsspaceindustries.com/citizens/$username"
 
+# Use Invoke-WebRequest to get the HTML content of the pages
 try {
-    # Use Invoke-WebRequest to get the HTML content of the pages
-    $htmlContentOrg = Invoke-WebRequest -Uri $urlOrg -UseBasicParsing | Select-Object -ExpandProperty Content
-    $htmlContentCitizen = Invoke-WebRequest -Uri $urlCitizen -UseBasicParsing | Select-Object -ExpandProperty Content
+    $htmlContentOrg = Invoke-WebRequest -Uri $urlOrg -UseBasicParsing -ErrorAction Stop | Select-Object -ExpandProperty Content
+    $htmlContentCitizen = Invoke-WebRequest -Uri $urlCitizen -UseBasicParsing -ErrorAction Stop | Select-Object -ExpandProperty Content
 }
-catch [System.Net.WebException] {
-    if ($_.Exception.Response -ne $null -and $_.Exception.Response.StatusCode -eq [System.Net.HttpStatusCode]::NotFound) {
+catch {
+    $errorResponse = $_.Exception.Response
+
+    if ($errorResponse -eq $null) {
+        Write-Host "An unexpected error occurred: $_"
+        exit
+    }
+
+    if ($errorResponse.StatusCode -eq [System.Net.HttpStatusCode]::NotFound) {
         Write-Host "Citizen '$username' was not found (404). Try again."
         exit
     }
-    else {
-        # Handle other types of WebExceptions or re-throw the error
-        throw
-    }
-}
-catch {
-    # Handle other types of exceptions if needed
-    Write-Host "An unexpected error occurred: $_"
+
+    Write-Host "HTTP Error: $($errorResponse.StatusCode.value__)"
+    Write-Host "Response: $($errorResponse.StatusDescription)"
     exit
 }
 
