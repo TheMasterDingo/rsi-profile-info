@@ -99,7 +99,7 @@ function Extract-LocationWithHtmlAgilityPack {
         $location.Trim()
     }
     else {
-        "Not Found"
+        "Unknown"
     }
 }
 
