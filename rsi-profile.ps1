@@ -36,7 +36,8 @@ function Extract-InfoWithHtmlAgilityPack {
     # Output the inner text of the selected element
     if ($element) {
         $element.InnerText
-    } else {
+    }
+    else {
         "Not Found"
     }
 }
@@ -55,7 +56,8 @@ function Extract-BadgeInfoWithHtmlAgilityPack {
     # Output the inner text of the selected badge element
     if ($badgeElement) {
         $badgeElement.InnerText
-    } else {
+    }
+    else {
         "Not Found"
     }
 }
@@ -74,7 +76,29 @@ function Extract-EnlistedDateWithHtmlAgilityPack {
     # Output the inner text of the selected Enlisted date element
     if ($enlistedDateElement) {
         $enlistedDateElement.InnerText
-    } else {
+    }
+    else {
+        "Not Found"
+    }
+}
+
+# Function to extract Location date information from HTML using HTML Agility Pack
+function Extract-LocationWithHtmlAgilityPack {
+    param (
+        [string]$htmlContent
+    )
+
+    $doc = New-HtmlDocument -htmlContent $htmlContent
+
+    # Create an HTML Agility Pack document
+    $locationElement = $doc.DocumentNode.SelectSingleNode("//p[@class='entry' and .//span[@class='label' and contains(text(), 'Location')]]/strong[@class='value']")
+
+    # Output the inner text of the selected Enlisted date element
+    if ($locationElement) {
+        $location = $locationElement.InnerText
+        $location.Trim()
+    }
+    else {
         "Not Found"
     }
 }
@@ -94,7 +118,8 @@ function Extract-FluencyWithHtmlAgilityPack {
     if ($fluencyElement) {
         $fluency = $fluencyElement.InnerText -replace '\s+', ' '
         $fluency.Trim()
-    } else {
+    }
+    else {
         "Not Found"
     }
 }
@@ -115,7 +140,8 @@ function Get-OrganizationDetails {
 
         if ($isRedacted) {
             Write-Host -NoNewline -ForegroundColor DarkYellow "Main Organization: "; Write-Host -ForegroundColor DarkRed "REDACTED"
-        } else {
+        }
+        else {
             $mainOrgNameNode = $mainOrg.SelectSingleNode(".//a[@class='value']")
             $mainOrgName = if ($mainOrgNameNode) { $mainOrgNameNode.InnerText.Trim() } else { "" }
 
@@ -124,7 +150,8 @@ function Get-OrganizationDetails {
 
             Write-Host -NoNewline -ForegroundColor DarkYellow "Main Organization: "; Write-Host -ForegroundColor DarkCyan "$mainOrgName($mainOrgSID)"
         }
-    } else {
+    }
+    else {
         Write-Host -NoNewline -ForegroundColor DarkYellow "Main Organization: "; Write-Host -ForegroundColor DarkCyan "None"
     }
 
@@ -139,7 +166,8 @@ function Get-OrganizationDetails {
 
             if ($isRestricted) {
                 $affiliatedOrgDetails += "REDACTED"
-            } else {
+            }
+            else {
                 $affiliatedOrgNameNode = $affiliatedOrg.SelectSingleNode(".//a[contains(@class, 'value')]")
                 $affiliatedOrgName = if ($affiliatedOrgNameNode) { $affiliatedOrgNameNode.InnerText.Trim() } else { "" }
 
@@ -149,7 +177,8 @@ function Get-OrganizationDetails {
                 $affiliatedOrgDetails += "$affiliatedOrgName($affiliatedOrgSID)"
             }
         }
-    } else {
+    }
+    else {
         $affiliatedOrgDetails += "None"
     }
 
@@ -164,7 +193,8 @@ function Get-OrganizationDetails {
                 Write-Host -NoNewline -ForegroundColor DarkYellow " | "
             }
             Write-Host -NoNewline -ForegroundColor DarkRed $item
-        } else {
+        }
+        else {
             if (-not $isFirst) {
                 Write-Host -NoNewline -ForegroundColor DarkYellow " | "
             }
@@ -178,7 +208,8 @@ function Get-OrganizationDetails {
 # Check if the username is provided as a command-line argument
 if ($args.Count -gt 0) {
     $username = $args[0]
-} else {
+}
+else {
     # Ask user for the username
     $username = Read-Host "Enter RSI Handle"
 }
@@ -221,6 +252,7 @@ function Get-UserDetails {
     $ueeCitizenRecord = Extract-InfoWithHtmlAgilityPack -htmlContent $htmlContent -label "UEE Citizen Record"
     $badge = Extract-BadgeInfoWithHtmlAgilityPack -htmlContent $htmlContent
     $enlistedDate = Extract-EnlistedDateWithHtmlAgilityPack -htmlContent $htmlContent
+    $location = Extract-LocationWithHtmlAgilityPack -htmlContent $htmlContent
     $fluency = Extract-FluencyWithHtmlAgilityPack -htmlContent $htmlContent
 
     # Output the extracted information from the citizen page
@@ -229,6 +261,7 @@ function Get-UserDetails {
     Write-Host -NoNewline -ForegroundColor DarkYellow "UEE Citizen Record: "; Write-Host -ForegroundColor DarkCyan $ueeCitizenRecord
     Write-Host -NoNewline -ForegroundColor DarkYellow "Badge: "; Write-Host -ForegroundColor DarkCyan $badge
     Write-Host -NoNewline -ForegroundColor DarkYellow "Enlisted Date: "; Write-Host -ForegroundColor DarkCyan $enlistedDate
+    Write-Host -NoNewline -ForegroundColor DarkYellow "Location: "; Write-Host -ForegroundColor DarkCyan $location
     Write-Host -NoNewline -ForegroundColor DarkYellow "Fluency: "; Write-Host -ForegroundColor DarkCyan $fluency
 }
 
