@@ -289,7 +289,6 @@ function Get-UserDetails {
     Write-Host -NoNewline -ForegroundColor DarkYellow "Enlisted Date: "; Write-Host -ForegroundColor DarkCyan $enlistedDate
     Write-Host -NoNewline -ForegroundColor DarkYellow "Location: "; Write-Host -ForegroundColor DarkCyan $location
     Write-Host -NoNewline -ForegroundColor DarkYellow "Fluency: "; Write-Host -ForegroundColor DarkCyan $fluency
-    Write-Host -NoNewline -ForegroundColor DarkYellow "Bio: "; Write-Host -ForegroundColor DarkCyan $bio
 
     # Output the "Bio" line only if $bio is not null
     if ($bio -ne $null) {
