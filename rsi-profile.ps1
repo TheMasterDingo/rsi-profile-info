@@ -95,7 +95,7 @@ function Extract-LocationWithHtmlAgilityPack {
 
     # Output the inner text of the selected Enlisted date element
     if ($locationElement) {
-        $location = $locationElement.InnerText
+        $location = $locationElement.InnerText -replace '\s*,', ','
         $location.Trim()
     }
     else {
