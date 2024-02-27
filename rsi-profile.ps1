@@ -301,6 +301,6 @@ function Get-UserDetails {
 }
 
 # Print user details with or without the Bio information based on the -b flag
-$userDetails = Get-UserDetails -htmlContent $htmlContentCitizen -IncludeBio:$includeBioFlag
+$userDetails = Get-UserDetails -htmlContent $htmlContentCitizen -IncludeBio:$bioArgument
 # Print organization details
 $orgDetails = Get-OrganizationDetails -htmlContent $htmlContentOrg
