@@ -124,6 +124,27 @@ function Extract-FluencyWithHtmlAgilityPack {
     }
 }
 
+# Function to extract Bio date information from HTML using HTML Agility Pack
+function Extract-bioWithHtmlAgilityPack {
+    param (
+        [string]$htmlContent
+    )
+
+    $doc = New-HtmlDocument -htmlContent $htmlContent
+
+    # Create an HTML Agility Pack document
+    $bioElement = $doc.DocumentNode.SelectSingleNode("//div[@class='entry bio' and .//span[@class='label' and contains(text(), 'Bio')]]/div[@class='value']")
+
+    # Output the inner text of the selected Bio element
+    if ($bioElement) {
+        $bio = $bioElement.InnerText
+        $bio.Trim()
+    }
+    else {
+        "Not Found"
+    }
+}
+
 # Function to get organization details
 function Get-OrganizationDetails {
     param (
@@ -254,6 +275,7 @@ function Get-UserDetails {
     $enlistedDate = Extract-EnlistedDateWithHtmlAgilityPack -htmlContent $htmlContent
     $location = Extract-LocationWithHtmlAgilityPack -htmlContent $htmlContent
     $fluency = Extract-FluencyWithHtmlAgilityPack -htmlContent $htmlContent
+    $bio = Extract-bioWithHtmlAgilityPack -htmlContent $htmlContent
 
     # Output the extracted information from the citizen page
     Write-Host -NoNewline -ForegroundColor DarkGray ("Information extracted from: "); Write-Host -ForegroundColor White $urlCitizen
@@ -263,6 +285,7 @@ function Get-UserDetails {
     Write-Host -NoNewline -ForegroundColor DarkYellow "Enlisted Date: "; Write-Host -ForegroundColor DarkCyan $enlistedDate
     Write-Host -NoNewline -ForegroundColor DarkYellow "Location: "; Write-Host -ForegroundColor DarkCyan $location
     Write-Host -NoNewline -ForegroundColor DarkYellow "Fluency: "; Write-Host -ForegroundColor DarkCyan $fluency
+    Write-Host -NoNewline -ForegroundColor DarkYellow "Bio: "; Write-Host -ForegroundColor DarkCyan $bio
 }
 
 # Print user details
