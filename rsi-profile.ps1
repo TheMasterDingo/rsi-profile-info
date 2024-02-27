@@ -226,6 +226,14 @@ function Get-OrganizationDetails {
     }
 }
 
+# Check if the -b flag is provided
+$bioArgumentIndex = $args.IndexOf("-b")
+$bioArgument = $bioArgumentIndex -ge 0
+
+if ($bioArgument) {
+    $args = $args -ne "-b"
+}
+
 # Check if the username is provided as a command-line argument
 if ($args.Count -gt 0) {
     $username = $args[0]
@@ -234,9 +242,6 @@ else {
     # Ask user for the username
     $username = Read-Host "Enter RSI Handle"
 }
-
-# Check if the -b flag is provided
-$includeBioFlag = $args -contains "-b"
 
 # URL for the RSI organizations page
 $urlOrg = "https://robertsspaceindustries.com/citizens/$username/organizations"
@@ -268,8 +273,7 @@ catch {
 
 function Get-UserDetails {
     param (
-        [string]$htmlContent,
-        [switch]$IncludeBio
+        [string]$htmlContent
     )
 
     # Extract information using the HTML Agility Pack functions
@@ -279,7 +283,7 @@ function Get-UserDetails {
     $enlistedDate = Extract-EnlistedDateWithHtmlAgilityPack -htmlContent $htmlContent
     $location = Extract-LocationWithHtmlAgilityPack -htmlContent $htmlContent
     $fluency = Extract-FluencyWithHtmlAgilityPack -htmlContent $htmlContent
-    $bio = if ($IncludeBio) { Extract-bioWithHtmlAgilityPack -htmlContent $htmlContent } else { $null }
+    $bio = if ($bioArgument) { Extract-bioWithHtmlAgilityPack -htmlContent $htmlContent } else { $null }
 
     # Output the extracted information from the citizen page
     Write-Host -NoNewline -ForegroundColor DarkGray ("Information extracted from: "); Write-Host -ForegroundColor White $urlCitizen
