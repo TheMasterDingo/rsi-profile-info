@@ -235,6 +235,9 @@ else {
     $username = Read-Host "Enter RSI Handle"
 }
 
+# Check if the -b flag is provided
+$includeBioFlag = $args -contains "-b"
+
 # URL for the RSI organizations page
 $urlOrg = "https://robertsspaceindustries.com/citizens/$username/organizations"
 # URL for the RSI citizen page
@@ -265,7 +268,8 @@ catch {
 
 function Get-UserDetails {
     param (
-        [string]$htmlContent
+        [string]$htmlContent,
+        [switch]$IncludeBio
     )
 
     # Extract information using the HTML Agility Pack functions
@@ -275,7 +279,7 @@ function Get-UserDetails {
     $enlistedDate = Extract-EnlistedDateWithHtmlAgilityPack -htmlContent $htmlContent
     $location = Extract-LocationWithHtmlAgilityPack -htmlContent $htmlContent
     $fluency = Extract-FluencyWithHtmlAgilityPack -htmlContent $htmlContent
-    $bio = Extract-bioWithHtmlAgilityPack -htmlContent $htmlContent
+    $bio = if ($IncludeBio) { Extract-bioWithHtmlAgilityPack -htmlContent $htmlContent } else { $null }
 
     # Output the extracted information from the citizen page
     Write-Host -NoNewline -ForegroundColor DarkGray ("Information extracted from: "); Write-Host -ForegroundColor White $urlCitizen
@@ -286,9 +290,14 @@ function Get-UserDetails {
     Write-Host -NoNewline -ForegroundColor DarkYellow "Location: "; Write-Host -ForegroundColor DarkCyan $location
     Write-Host -NoNewline -ForegroundColor DarkYellow "Fluency: "; Write-Host -ForegroundColor DarkCyan $fluency
     Write-Host -NoNewline -ForegroundColor DarkYellow "Bio: "; Write-Host -ForegroundColor DarkCyan $bio
+
+    # Output the "Bio" line only if $bio is not null
+    if ($bio -ne $null) {
+        Write-Host -NoNewline -ForegroundColor DarkYellow "Bio: "; Write-Host -ForegroundColor DarkCyan $bio
+    }
 }
 
-# Print user details
-$userDetails = Get-UserDetails -htmlContent $htmlContentCitizen
+# Print user details with or without the Bio information based on the -b flag
+$userDetails = Get-UserDetails -htmlContent $htmlContentCitizen -IncludeBio:$includeBioFlag
 # Print organization details
 $orgDetails = Get-OrganizationDetails -htmlContent $htmlContentOrg
