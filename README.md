@@ -1,5 +1,5 @@
 This is a simple script that queries the RSI website and shows formatted information regarding searched player.  
-![](https://i.imgur.com/cbQbmcN.png)
+![](https://i.imgur.com/cbQbmcN.png)  
 **Install**  
 -You will need the HTMLAgilityPack to run it.  
 -Easiest way is to download it here https://www.nuget.org/packages/HtmlAgilityPack then 'Download package'  
@@ -8,5 +8,5 @@ This is a simple script that queries the RSI website and shows formatted informa
 
 **Run**  
 -You can either type the username right after the script like ./rsi-profile.ps1 UserName or just run the script and it will ask you for a username  
---Bonus: You can type '-b' to print the Bio information also
+--Bonus: You can type '-b' to print the Bio information also  
 **PROFIT**  
