@@ -2,7 +2,7 @@ This is a simple script that queries the RSI website and shows formatted informa
 ![](https://i.imgur.com/cbQbmcN.png)
 **Install**  
 -You will need the HTMLAgilityPack to run it.  
--Easiest way is to download it here https://www.nuget.org/packages/HtmlAgilityPack then 'Download package'
+-Easiest way is to download it here https://www.nuget.org/packages/HtmlAgilityPack then 'Download package' 
 -Once downloaded extract the .nupkg (with 7zip or other) and navigate to \lib\netstandard2.0 and extract HtmlAgilityPack.dll in a folder of your choice.  
 -Open the script with Notepad and paste the path of the .dll into the first line $htmlAgilityPackPath = "PATH TO YOUR DLL"  
 
